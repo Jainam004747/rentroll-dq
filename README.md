@@ -262,6 +262,15 @@ data/landing/*.csv ──▶ dbt sources (freshness) ──▶ staging views + t
 - **Evidence is written even when checks fail.** A failed control with a clean record is still evidence. The Airflow DAG runs `verify` with `trigger_rule="all_done"` for the same reason.
 - **DuckDB locally.** It keeps the project runnable on a laptop and in CI. The dbt project only needs a different profile to run on a cloud warehouse.
 
+## What I learned
+
+- **A failing test should stop bad data, not just report it.** Running `dbt build` instead of `run` then `test` means a broken staging table never reaches the report tables. The dashboard shows yesterday's numbers, which is better than today's wrong ones.
+- **Thresholds are a product decision.** My first idea was a fixed percentage, and replaying the history showed it would fire 8 times for 2 real problems. Mean and standard deviation looked smarter but missed the cut-off file because one bad day had stretched the band. Median and MAD fixed both. People only keep reading alerts if most of them are real.
+- **Reconciliation catches what row-level tests can't.** Every payment row can look valid while the total is still wrong. Comparing against the GL control total found the negative payment and the extra posting together.
+- **Lineage turns "a test failed" into "this report is wrong".** Declaring the Power BI reports as dbt exposures meant I could tell the owner which dashboard was affected instead of just naming a table.
+- **Evidence has to be written when things fail too.** A control that fails and is documented is still a working control. Hash-chaining the runs taught me how auditors think about whether a record could have been changed later.
+- **dbt artifacts are worth reading.** `manifest.json`, `run_results.json` and `sources.json` have everything needed to build monitoring on top of dbt without parsing log output.
+
 ## Limitations
 
 - One month of data per run; a real setup would partition by load date.
