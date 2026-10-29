@@ -9,3 +9,4 @@ logs/
 *.duckdb
 *.duckdb.wal
 evidence/
+data/landing/
