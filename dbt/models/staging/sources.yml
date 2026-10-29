@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: landing
+    description: CSV files dropped by the property management system each morning.
+    meta:
+      external_location: "read_csv('{{ env_var('DQ_LANDING', '../data/landing') }}/{name}.csv', header = true, auto_detect = true)"
+    loaded_at_field: _loaded_at
+    freshness:
+      warn_after: {count: 24, period: hour}
+      error_after: {count: 48, period: hour}
+    tables:
+      - name: properties
+      - name: units
+      - name: leases
+      - name: rent_payments
+      - name: gl_rent_control
+        description: Monthly rent totals posted by finance. Used as the control total for reconciliation.

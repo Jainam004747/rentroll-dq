@@ -1,0 +1,23 @@
+version: 2
+
+exposures:
+  - name: rent_collection_dashboard
+    label: Rent Collection Dashboard (Power BI)
+    type: dashboard
+    maturity: high
+    owner:
+      name: Portfolio Finance
+      email: finance@example.com
+    depends_on:
+      - ref('fct_rent_collection')
+
+  - name: portfolio_occupancy_report
+    label: Portfolio Occupancy Report (Power BI)
+    type: dashboard
+    maturity: medium
+    owner:
+      name: Asset Management
+      email: assets@example.com
+    depends_on:
+      - ref('dim_property')
+      - ref('fct_rent_collection')

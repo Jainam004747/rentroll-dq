@@ -1,0 +1,12 @@
+version: 2
+
+models:
+  - name: dim_property
+    columns:
+      - name: property_id
+        data_tests: [unique, not_null]
+  - name: fct_rent_collection
+    description: Rent expected vs collected per property per month. Feeds the Power BI rent collection report.
+    columns:
+      - name: property_id
+        data_tests: [not_null]

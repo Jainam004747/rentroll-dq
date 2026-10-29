@@ -1,0 +1,59 @@
+version: 2
+
+models:
+  - name: stg_properties
+    columns:
+      - name: property_id
+        data_tests: [unique, not_null]
+      - name: asset_type
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [residential, office, retail, industrial]
+
+  - name: stg_units
+    columns:
+      - name: unit_id
+        data_tests: [unique, not_null]
+      - name: property_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_properties')
+                field: property_id
+
+  - name: stg_leases
+    columns:
+      - name: lease_id
+        data_tests: [unique, not_null]
+      - name: unit_id
+        description: A lease without a unit can't be tied to a property, so it drops out of rent reporting.
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('stg_units')
+                field: unit_id
+      - name: monthly_rent
+        data_tests: [positive_value]
+      - name: status
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: [active, ended, pending]
+
+  - name: stg_rent_payments
+    columns:
+      - name: payment_id
+        data_tests: [unique, not_null]
+      - name: lease_id
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_leases')
+                field: lease_id
+      - name: amount
+        data_tests: [positive_value]
+      - name: paid_on
+        data_tests: [not_in_future]
