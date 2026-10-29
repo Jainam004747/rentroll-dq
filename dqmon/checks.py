@@ -28,7 +28,7 @@ def volume_check(con, cfg, run_id, landing_dir, owners):
     count = con.execute(f"select count(*) from read_csv('{path}', header = true)").fetchone()[0]
     history = [v for (v,) in con.execute(
         "select value from dq_metrics where metric = ? order by measured_at desc limit 30", [f"rows.{source}"]).fetchall()]
-    con.execute("insert into dq_metrics values (?, now(), ?, ?)", [run_id, f"rows.{source}", count])
+    con.execute("insert into dq_metrics values (?, timezone('UTC', now()), ?, ?)", [run_id, f"rows.{source}", count])
     base = dict(check_id=cfg["id"], kind="volume", dimension="volume", object=f"source:landing.{source}",
                 owner=owner_for(f"source:landing.{source}", owners))
     if len(history) < cfg.get("min_history", 7):

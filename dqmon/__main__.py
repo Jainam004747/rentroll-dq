@@ -83,7 +83,7 @@ def cmd_run(args):
     (run_dir / "summary.txt").write_text(summary)
     previous = con.execute("select evidence_sha256 from dq_runs order by run_id desc limit 1").fetchone()
     digest = evidence.seal(run_dir, previous[0] if previous else None)
-    con.execute("insert into dq_runs values (?, ?, now(), ?, ?, ?, ?, ?)",
+    con.execute("insert into dq_runs values (?, ?, timezone('UTC', now()), ?, ?, ?, ?, ?)",
                 [run_id, started.replace(tzinfo=None), args.operator or getpass.getuser(), outcome, len(results), len(failed), digest])
     con.close()
 

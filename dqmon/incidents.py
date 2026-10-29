@@ -16,7 +16,7 @@ def sync(con, run_id, results):
             continue
         existing = open_by_check.get(r.check_id)
         if r.failed and existing is None:
-            con.execute("""insert into dq_incidents values (?, ?, ?, ?, ?, ?, 'open', ?, now(), ?, 1, null, null, ?)""",
+            con.execute("""insert into dq_incidents values (?, ?, ?, ?, ?, ?, 'open', ?, timezone('UTC', now()), ?, 1, null, null, ?)""",
                         [next_id, r.check_id, r.object, r.dimension, "high" if r.severity == "error" else "low",
                          r.owner.get("team", ""), run_id, run_id, r.message])
             opened.append((next_id, r))
@@ -26,7 +26,7 @@ def sync(con, run_id, results):
                            where incident_id = ?""", [run_id, r.message, existing[0]])
             updated.append((existing[0], r))
         elif existing is not None:
-            con.execute("""update dq_incidents set status = 'resolved', resolved_run = ?, resolved_at = now()
+            con.execute("""update dq_incidents set status = 'resolved', resolved_run = ?, resolved_at = timezone('UTC', now())
                            where incident_id = ?""", [run_id, existing[0]])
             resolved.append((existing[0], r))
     return opened, updated, resolved
