@@ -1,0 +1,27 @@
+# Who owns what, and the checks that run on top of the dbt tests.
+
+owners:
+  default:            {team: Data Engineering,           contact: "#de-alerts"}
+  source:landing:     {team: Data Engineering (ingestion), contact: "#de-ingestion"}
+  stg_leases:         {team: Leasing data stewards,      contact: leasing-data@example.com}
+  stg_rent_payments:  {team: Portfolio Finance stewards, contact: finance-data@example.com}
+  stg_gl_rent_control: {team: Portfolio Finance stewards, contact: finance-data@example.com}
+  reconciliation:     {team: Portfolio Finance stewards, contact: finance-data@example.com}
+
+checks:
+  # Row count of each landing file compared with its own history.
+  - id: volume.rent_payments
+    type: volume
+    source: rent_payments
+    method: mad          # median +/- k * MAD; k picked with `python -m dqmon tune`
+    k: 5
+    min_history: 7
+  - id: volume.leases
+    type: volume
+    source: leases
+    method: mad
+    k: 5
+    min_history: 7
+  # Column names and types of each landing file compared with the last run.
+  - id: schema.landing
+    type: schema
